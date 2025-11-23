@@ -1,0 +1,13 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/zoo_prod
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: WARN
+    com.eurail.zoo_app.controller: INFO
+    com.eurail.zoo_app.service: INFO

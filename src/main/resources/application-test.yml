@@ -1,0 +1,12 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/zoo_test
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: WARN
+    com.eurail.zoo_app: WARN

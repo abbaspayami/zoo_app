@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zoo-app-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: zoo-app
+  template:
+    metadata:
+      labels:
+        app: zoo-app
+    spec:
+      containers:
+        - name: zoo-app
+          image: your-dockerhub-username/zoo-app:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATA_MONGODB_URI
+              value: mongodb://mongo:27017/zoo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zoo-app-service
+spec:
+  selector:
+    app: zoo-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer

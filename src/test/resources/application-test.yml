@@ -1,0 +1,9 @@
+spring:
+  data:
+    mongodb:
+      database: zoodb_test
+      port: 0   # پورت تصادفی برای embedded mongo
+
+logging:
+  level:
+    root: INFO
