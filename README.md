@@ -147,4 +147,4 @@ Response:
 
 Uses DTOs for input/output
 All input fields are validated with Bean Validation
-Tests use
+Tests use Testcontainers MongoDB (no local DB required)
