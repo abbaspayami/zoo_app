@@ -30,6 +30,7 @@ class AnimalServiceImplTest {
         service = new AnimalServiceImpl(repository, roomService);
         MockitoAnnotations.openMocks(this);
     }
+
     @Test
     void testCreateAnimal() {
         Animal animal = new Animal();
@@ -45,6 +46,8 @@ class AnimalServiceImplTest {
         savedAnimal.setCreated(Instant.now());
         savedAnimal.setUpdated(Instant.now());
 
+        // Mock roomService.exists() to return true for room "r1"
+        when(roomService.exists("r1")).thenReturn(true);
         when(repository.save(any())).thenReturn(savedAnimal);
 
         Animal result = service.create(animal);
@@ -52,6 +55,7 @@ class AnimalServiceImplTest {
         assertNotNull(result.getId());
         assertEquals("Lion", result.getTitle());
         verify(repository, times(1)).save(any());
+        verify(roomService, times(1)).exists("r1");
     }
 
     @Test
@@ -89,6 +93,8 @@ class AnimalServiceImplTest {
         updated.setCurrentRoomId("r2");
 
         when(repository.findById("a1")).thenReturn(Optional.of(existing));
+        // Mock roomService.exists() for the new room "r2"
+        when(roomService.exists("r2")).thenReturn(true);
         when(repository.save(any(Animal.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Animal result = service.update("a1", updated);
@@ -97,6 +103,7 @@ class AnimalServiceImplTest {
         assertEquals("r2", result.getCurrentRoomId());
 
         verify(repository, times(1)).save(any(Animal.class));
+        verify(roomService, times(1)).exists("r2");
     }
 
 
@@ -293,6 +300,22 @@ class AnimalServiceImplTest {
 
         verify(repository).findById(animalId);
         verify(roomService).get(roomId);
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void testCreateAnimal_WithNonExistentRoom_ShouldThrow() {
+        Animal animal = new Animal();
+        animal.setTitle("Lion");
+        animal.setCurrentRoomId("non-existent-room");
+        animal.setFavouriteRoomIds(new LinkedHashSet<>());
+
+        // Mock roomService.exists() to return false
+        when(roomService.exists("non-existent-room")).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class, () -> service.create(animal));
+
+        verify(roomService, times(1)).exists("non-existent-room");
         verify(repository, never()).save(any());
     }
 

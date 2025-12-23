@@ -19,7 +19,6 @@ public class GlobalExceptionHandler {
 
     private ApiError buildError(HttpStatus status, String message) {
         return new ApiError(
-                null, // id می‌تونی null یا UUID بسازی
                 status.value(),
                 status.getReasonPhrase(),
                 message,

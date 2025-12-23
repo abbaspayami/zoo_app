@@ -16,8 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,6 +43,9 @@ public class AnimalServiceImpl implements AnimalService {
     public Animal create(Animal animal) {
         log.debug("Creating new animal: {}", animal);
 
+        // Validate room references exist
+        validateRoomReferences(animal.getCurrentRoomId(), animal.getFavouriteRoomIds());
+
         animal.setCreated(Instant.now());
         animal.setUpdated(Instant.now());
 
@@ -61,7 +63,7 @@ public class AnimalServiceImpl implements AnimalService {
     public Animal get(String id) {
         log.debug("Getting animal by id={}", id);
         return repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Animal not found. id = " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Animal not found: " + id));
     }
 
     /**
@@ -75,6 +77,9 @@ public class AnimalServiceImpl implements AnimalService {
     @Override
     public Animal update(String id, Animal animal) {
         log.debug("Updating animal id={} with animal={}", id, animal);
+
+        // Validate room references exist
+        validateRoomReferences(animal.getCurrentRoomId(), animal.getFavouriteRoomIds());
 
         animal.setUpdated(Instant.now());
 
@@ -136,28 +141,29 @@ public class AnimalServiceImpl implements AnimalService {
     }
 
     /**
-     * Calculates statistics for favourite rooms.
-     * Each room is returned with the number of animals marking it as favourite.
-     * Rooms with no favourites are excluded.
+     * Calculates favourite-room statistics grouped by room title.
+     * Each returned entry contains the room title and the number of animals
+     * that have any room with that title marked as favourite.
+     * Rooms with zero favourites are excluded.
      *
      * @return list of FavouriteRoomStatsDto containing room title and favourite count
      */
     @Override
     public List<FavouriteRoomStatsDto> favouriteRoomStats() {
-        List<Animal> all = repository.findAll();
+        Map<String, Long> counts = new HashMap<>();
 
-        Map<String, Long> counts = all.stream()
-                .flatMap(a -> a.getFavouriteRoomIds().stream())
-                .collect(Collectors.groupingBy(r -> r, Collectors.counting()));
+        for (Animal animal : repository.findAll()) {
+            if (animal.getFavouriteRoomIds() == null) continue;
+
+            for (String roomId : animal.getFavouriteRoomIds()) {
+                if (!roomService.exists(roomId)) continue; // skip stale references
+                String title = roomService.get(roomId).getTitle();
+                counts.put(title, counts.getOrDefault(title, 0L) + 1);
+            }
+        }
 
         return counts.entrySet().stream()
-                .filter(e -> roomService.exists(e.getKey()))
-                .map(entry -> {
-                    String roomId = entry.getKey();
-                    Long count = entry.getValue();
-                    String title = roomService.get(roomId).getTitle();
-                    return new FavouriteRoomStatsDto(title, count);
-                })
+                .map(e -> new FavouriteRoomStatsDto(e.getKey(), e.getValue()))
                 .collect(Collectors.toList());
     }
 
@@ -250,6 +256,20 @@ public class AnimalServiceImpl implements AnimalService {
         animal.setUpdated(Instant.now());
 
         return repository.save(animal);
+    }
+
+    private void validateRoomReferences(String currentRoomId, Set<String> favouriteRoomIds) {
+        if (currentRoomId != null && !currentRoomId.isBlank() && !roomService.exists(currentRoomId)) {
+                throw new ResourceNotFoundException("Room not found: " + currentRoomId);
+            }
+
+        if (favouriteRoomIds != null && !favouriteRoomIds.isEmpty()) {
+            for (String roomId : favouriteRoomIds) {
+                if (!roomService.exists(roomId)) {
+                    throw new ResourceNotFoundException("Room not found: " + roomId);
+                }
+            }
+        }
     }
 
 

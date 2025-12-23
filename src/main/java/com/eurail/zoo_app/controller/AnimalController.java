@@ -19,7 +19,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "/animals", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/animals",
+        produces = MediaType.APPLICATION_JSON_VALUE,  // All methods return JSON
+        consumes = MediaType.APPLICATION_JSON_VALUE)  // All methods accept JSON
 @Validated
 public class AnimalController {
 
@@ -40,7 +42,7 @@ public class AnimalController {
      * @param uriBuilder used to build the Location URI of the created resource
      * @return 201 Created with the created Animal representation
      */
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping
     public ResponseEntity<AnimalResponseDto> create(@Valid @RequestBody AnimalCreateDto dto,
                                                     UriComponentsBuilder uriBuilder) {
         log.info("Creating new animal: {}", dto);
@@ -75,7 +77,7 @@ public class AnimalController {
      * @param dto the fields to update
      * @return 200 OK with the updated animal data
      */
-    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping("/{id}")
     public ResponseEntity<AnimalResponseDto> update(@PathVariable String id,
                                                     @Valid @RequestBody AnimalUpdateDto dto) {
         log.debug("Updating animal ID {}: {}", id, dto);

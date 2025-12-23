@@ -14,12 +14,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/rooms")
+@RequestMapping(value = "/rooms",
+        produces = MediaType.APPLICATION_JSON_VALUE,  // All methods return JSON
+        consumes = MediaType.APPLICATION_JSON_VALUE)  // All methods accept JSON)
+@Validated  // Required for @PathVariable validation
 public class RoomController {
 
     private static final Logger log = LoggerFactory.getLogger(RoomController.class);
@@ -40,7 +44,7 @@ public class RoomController {
      * @param dto the data for creating a new room
      * @return 201 Created with the created Room data
      */
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping
     public ResponseEntity<RoomResponseDto> create(@Valid @RequestBody RoomCreateDto dto) {
         log.info("Creating room: {}", dto.getTitle());
         Room room = mapper.toEntity(dto);
@@ -54,7 +58,7 @@ public class RoomController {
      * @param id the room ID
      * @return 200 OK with the Room data
      */
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/{id}")
     public ResponseEntity<RoomResponseDto> get(@PathVariable String id) {
         log.info("Fetching room id={}", id);
         Room room = service.get(id);
@@ -68,7 +72,7 @@ public class RoomController {
      * @param dto the fields to update
      * @return 200 OK with the updated Room data
      */
-    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping("/{id}")
     public ResponseEntity<RoomResponseDto> update(@PathVariable String id, @Valid @RequestBody RoomUpdateDto dto) {
         log.info("Updating room id={}", id);
         Room existing = service.get(id);
@@ -98,8 +102,8 @@ public class RoomController {
      *
      * @return 200 OK with a list of FavouriteRoomStatsDto
      */
-    @GetMapping(value = "/favourites/stats", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<FavouriteRoomStatsDto>> favouriteStats() {
+    @GetMapping("/favourites/stats")
+    public ResponseEntity<List<FavouriteRoomStatsDto>> getFavouriteRoomStats() {
         log.info("Fetching favourite room statistics");
         List<FavouriteRoomStatsDto> stats = animalService.favouriteRoomStats();
         return ResponseEntity.ok(stats);

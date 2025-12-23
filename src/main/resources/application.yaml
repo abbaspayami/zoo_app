@@ -8,8 +8,11 @@ spring:
 logging:
   level:
     root: INFO
-    com.eurail.zoo_app.controller: DEBUG
-    com.eurail.zoo_app.service: DEBUG
-    com.eurail.zoo_app.mapper: DEBUG
+    com.eurail.zoo_app: INFO
+    # Suppress noisy third-party libraries
+    org.mongodb.driver: WARN
+    org.mongodb: WARN
+    org.springframework: WARN
+    org.apache: WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

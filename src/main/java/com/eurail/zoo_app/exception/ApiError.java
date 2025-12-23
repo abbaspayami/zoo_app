@@ -3,7 +3,6 @@ package com.eurail.zoo_app.exception;
 import java.time.Instant;
 
 public class ApiError {
-    private String id;
     private int status;
     private String error;
     private String message;
@@ -11,20 +10,11 @@ public class ApiError {
 
 
 
-    public ApiError(String id, int status, String error, String message, Instant timestamp) {
-        this.id = id;
+    public ApiError(int status, String error, String message, Instant timestamp) {
         this.status = status;
         this.error = error;
         this.message = message;
         this.timestamp = timestamp;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public int getStatus() {

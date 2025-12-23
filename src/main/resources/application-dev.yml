@@ -8,5 +8,15 @@ server:
 
 logging:
   level:
-    root: DEBUG
-    com.eurail.zoo_app: DEBUG
+    root: INFO
+    com.eurail.zoo_app: DEBUG  # Verbose for development
+    com.eurail.zoo_app.controller: DEBUG
+    com.eurail.zoo_app.service: DEBUG
+    com.eurail.zoo_app.mapper: DEBUG
+    # Suppress third-party DEBUG logs
+    org.mongodb.driver: WARN
+    org.mongodb: WARN
+    org.springframework: WARN
+    org.apache: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

@@ -3,10 +3,14 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/zoo_test
 
-server:
-  port: 8080
-
 logging:
   level:
-    root: WARN
-    com.eurail.zoo_app: WARN
+    root: WARN  # Minimal during tests
+    com.eurail.zoo_app: INFO  # Or WARN if you want less noise
+    # Suppress third-party logs during tests
+    org.mongodb.driver: WARN
+    org.mongodb: WARN
+    org.springframework: WARN
+    org.apache: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

@@ -1,13 +1,25 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/zoo_prod
+      uri: ${MONGODB_URI:mongodb://mongo:27017/zoo_prod}  # Use env variable
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 logging:
   level:
-    root: WARN
+    root: WARN  # Minimal root logging
+    com.eurail.zoo_app: INFO  # Application logs at INFO
     com.eurail.zoo_app.controller: INFO
     com.eurail.zoo_app.service: INFO
+    # Suppress all third-party DEBUG/INFO
+    org.mongodb.driver: WARN
+    org.mongodb: WARN
+    org.springframework: WARN
+    org.apache: WARN
+    org.hibernate: WARN
+  pattern:
+    # JSON format for production (better for log aggregation tools)
+    console: '{"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%level","logger":"%logger{36}","message":"%msg","thread":"%thread"}%n'
+    # Or keep simple format if not using log aggregation
+    # console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

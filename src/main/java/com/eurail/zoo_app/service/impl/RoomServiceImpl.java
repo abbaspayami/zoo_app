@@ -46,7 +46,7 @@ public class RoomServiceImpl implements RoomService {
     public Room get(String id) {
         log.debug("Getting room by id={}", id);
         return repo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Room not found. id = " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found: " + id));
     }
 
     /**
